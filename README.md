@@ -41,8 +41,8 @@ This project is an AI-powered Slack bot designed to monitor client communication
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/tylervu12/slack-ai
-    cd slack-ai
+    git clone <repository_url>
+    cd <repository_name>
     ```
 
 2.  **Create a virtual environment:**
@@ -83,7 +83,7 @@ This project is an AI-powered Slack bot designed to monitor client communication
 
 This project is configured for easy deployment on [Render](https://render.com/).
 
-1.  **Create a new "Background Worker"** on Render and connect it to your GitHub repository.
-2.  Render will automatically detect the `render.yaml` file.
+1.  **Create a new "Web Service"** on Render and connect it to your GitHub repository.
+2.  Render will automatically detect the `render.yaml` file and populate the settings.
 3.  Under the **Environment** tab, add your secrets (`SLACK_APP_TOKEN`, `SLACK_BOT_TOKEN`, `OPENAI_API_KEY`) as secret files or environment variables.
-4.  Deploy! The worker will start, and the bot will be live.
+4.  Deploy! The service will go live, and the bot will start running.

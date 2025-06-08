@@ -3,5 +3,7 @@ slack_sdk
 slack_bolt
 python-dotenv
 apscheduler
-aiohttp 
+aiohttp
+Flask
+gunicorn
 pytz

@@ -1,40 +1,51 @@
 import logging
-import time
+import os
 import threading
 from dotenv import load_dotenv
+from flask import Flask
 
 from slack.listener import start_listening
-from tasks.scheduler import start_scheduler, run_daily_summaries
+from tasks.scheduler import start_scheduler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def main():
-    """
-    Main entrypoint for the Slack Monitoring Agent.
-    Initializes and starts all the necessary components.
-    """
-    # Load environment variables from .env file
-    load_dotenv()
-    logging.info("Environment variables loaded.")
+# --- Flask App for Render Health Checks ---
+app = Flask(__name__)
 
+@app.route('/')
+def health_check():
+    """
+    This endpoint is used by Render to check if the service is alive.
+    """
+    return "OK", 200
+
+def run_background_tasks():
+    """
+    Starts the Slack listener and the scheduler in background threads.
+    """
     # Start the background task scheduler
-    # This will handle analyzing message buffers, checking for unanswered questions, etc.
     start_scheduler()
     
     # Start the Slack listener in a separate thread
-    # This continuously listens for new messages from Slack
     logging.info("Starting Slack listener in a background thread...")
     listener_thread = threading.Thread(target=start_listening, daemon=True)
     listener_thread.start()
     logging.info("Slack listener is running.")
 
-    # Keep the main thread alive to allow background threads to run
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        logging.info("Shutdown signal received. Exiting.")
+def main():
+    """
+    Main entrypoint for the Slack Monitoring Agent.
+    """
+    load_dotenv()
+    logging.info("Environment variables loaded.")
+    run_background_tasks()
 
-if __name__ == "__main__":
-    main()
+    # The Flask app will be run by Gunicorn in production (see render.yaml)
+    # This block is for local development if you want to run it directly.
+    if __name__ == "__main__":
+        port = int(os.environ.get("PORT", 8080))
+        app.run(host='0.0.0.0', port=port)
+
+# Run the main function to set up background tasks before the server starts
+main()

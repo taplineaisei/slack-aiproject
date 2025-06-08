@@ -1,10 +1,10 @@
 services:
-  - type: worker
+  - type: web
     name: slack-ai-monitor
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
+    startCommand: gunicorn main:app
     envVars:
       - key: SLACK_APP_TOKEN
         sync: false
