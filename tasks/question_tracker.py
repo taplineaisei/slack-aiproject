@@ -3,9 +3,13 @@ import os
 import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
+from dotenv import load_dotenv
 
 # Add project root to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Load environment variables
+load_dotenv()
 
 from slack.api import post_alert, build_message_link
 from storage.metadata_loader import metadata_loader
@@ -24,7 +28,7 @@ class QuestionTracker:
             cls._instance = super(QuestionTracker, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, deadline_minutes: int = 30):
+    def __init__(self, deadline_minutes: float = 30):
         if not hasattr(self, '_initialized'):
             # Using question timestamp as the unique key
             self.unanswered_questions: Dict[str, Dict[str, Any]] = {}
@@ -105,7 +109,8 @@ class QuestionTracker:
                 self.unanswered_questions.pop(question_ts)
 
 # Singleton instance
-question_tracker = QuestionTracker()
+deadline = float(os.environ.get("QUESTION_EXPIRATION_MINUTES", 0.5))
+question_tracker = QuestionTracker(deadline_minutes=deadline)
 
 if __name__ == '__main__':
     # Example usage for testing

@@ -4,9 +4,13 @@ import sys
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 import pytz
+from dotenv import load_dotenv
 
 # Add project root to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Load environment variables
+load_dotenv()
 
 from storage.memory import message_memory
 from llm.trigger_engine import trigger_engine
@@ -20,11 +24,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # --- Configuration ---
 # How long a channel must be inactive before we process its messages
-INACTIVITY_THRESHOLD_MINUTES = 5
-# How often the scheduler checks for inactive channels
-SCHEDULER_INTERVAL_SECONDS = 60
-# How often the scheduler checks for expired questions
-QUESTION_EXPIRY_INTERVAL_SECONDS = 60
+INACTIVITY_THRESHOLD_MINUTES = float(os.environ.get("INACTIVITY_THRESHOLD_MINUTES", 0.16)) # ~10 seconds
+# How often the scheduler checks for inactive channels (in minutes)
+SCHEDULER_INTERVAL_MINUTES = float(os.environ.get("SCHEDULER_INTERVAL_MINUTES", 5 / 60)) # 5 seconds
+# How often the scheduler checks for expired questions (in minutes)
+QUESTION_EXPIRY_INTERVAL_MINUTES = float(os.environ.get("QUESTION_EXPIRY_INTERVAL_MINUTES", 5 / 60)) # 5 seconds
 
 def analyze_inactive_channels():
     """
@@ -114,13 +118,13 @@ def start_scheduler():
     scheduler.add_job(
         analyze_inactive_channels,
         'interval',
-        seconds=SCHEDULER_INTERVAL_SECONDS
+        seconds=SCHEDULER_INTERVAL_MINUTES * 60
     )
     # Job 2: Check for expired questions
     scheduler.add_job(
         question_tracker.check_for_expired_questions,
         'interval',
-        seconds=QUESTION_EXPIRY_INTERVAL_SECONDS
+        seconds=QUESTION_EXPIRY_INTERVAL_MINUTES * 60
     )
     # Job 3: Run daily summaries at 6:00 PM PST
     scheduler.add_job(
