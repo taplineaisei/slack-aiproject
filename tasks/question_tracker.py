@@ -3,13 +3,6 @@ import os
 import sys
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
-from dotenv import load_dotenv
-
-# Add project root to Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Load environment variables
-load_dotenv()
 
 from slack.api import post_alert, build_message_link
 from storage.metadata_loader import metadata_loader
@@ -109,7 +102,7 @@ class QuestionTracker:
                 self.unanswered_questions.pop(question_ts)
 
 # Singleton instance
-deadline = float(os.environ.get("QUESTION_EXPIRATION_MINUTES", 0.5))
+deadline = float(os.environ.get("QUESTION_EXPIRATION_MINUTES", 30))
 question_tracker = QuestionTracker(deadline_minutes=deadline)
 
 if __name__ == '__main__':

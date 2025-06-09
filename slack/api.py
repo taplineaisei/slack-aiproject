@@ -1,7 +1,6 @@
 import os
 import logging
 import time
-from dotenv import load_dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from datetime import datetime, timedelta
@@ -9,9 +8,6 @@ from typing import List, Dict, Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Initialize Slack WebClient
 try:

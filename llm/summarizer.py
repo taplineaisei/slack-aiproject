@@ -8,7 +8,6 @@ from typing import List, Dict, Any
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from openai import OpenAI
-from dotenv import load_dotenv
 
 from slack.api import get_channel_history, get_user_email, post_summary
 from storage.metadata_loader import metadata_loader
@@ -16,8 +15,7 @@ from storage.metadata_loader import metadata_loader
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Load environment variables and initialize OpenAI client
-load_dotenv()
+# Initialize OpenAI client
 try:
     openai_api_key = os.environ["OPENAI_API_KEY"]
     client = OpenAI(api_key=openai_api_key)

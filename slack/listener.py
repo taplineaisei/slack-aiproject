@@ -1,7 +1,6 @@
 import os
 import sys
 import logging
-from dotenv import load_dotenv
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from storage.metadata_loader import metadata_loader
@@ -11,12 +10,6 @@ from tasks.question_tracker import question_tracker
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Load environment variables
-load_dotenv()
-
-# Add project root to Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Initialize Slack App
 try:
@@ -36,8 +29,10 @@ def handle_message(message, say):
     message_content = message.get("message", message)
 
     # Basic validation
-    if 'user' not in message_content or 'text' not in message_content:
-        return # Skip messages without a user or text
+    if 'user' not in message_content or 'text' not in message_content or message_content.get("subtype") is not None:
+        return
+
+    logging.info(f"--- Message received by listener: '{message_content.get('text')}'")
 
     user_id = message_content['user']
     channel_id = message['channel'] # Channel ID is always top-level
@@ -71,14 +66,14 @@ def handle_message(message, say):
         return
 
     user_role = metadata_loader.get_role(user_email, channel_name)
-    
+
     # Log the processed message details
-    logging.info(f"Message received in #{channel_name} | User: {user_email} (Role: {user_role}) | Text: '{text}'")
-    
+    logging.info(f"Message processed for #{channel_name} | User: {user_email} (Role: {user_role}) | Text: '{text}'")
+
     # Create a structured message object
     message_to_store = {
         "timestamp": message_content["ts"],
-        "thread_ts": message.get("thread_ts", message_content.get("thread_ts")), # Ensure thread_ts is captured
+        "thread_ts": message.get("thread_ts", message_content.get("ts")), # Ensure thread_ts is captured
         "text": text,
         "user_id": user_id,
         "user_role": user_role,
@@ -92,6 +87,7 @@ def handle_message(message, say):
 
     # Notify the question tracker of the new message
     question_tracker.handle_new_message(message_to_store)
+
 
 def start_listening():
     """

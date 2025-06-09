@@ -4,13 +4,6 @@ import sys
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 import pytz
-from dotenv import load_dotenv
-
-# Add project root to Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Load environment variables
-load_dotenv()
 
 from storage.memory import message_memory
 from llm.trigger_engine import trigger_engine
@@ -24,11 +17,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # --- Configuration ---
 # How long a channel must be inactive before we process its messages
-INACTIVITY_THRESHOLD_MINUTES = float(os.environ.get("INACTIVITY_THRESHOLD_MINUTES", 0.16)) # ~10 seconds
+INACTIVITY_THRESHOLD_MINUTES = float(os.environ.get("INACTIVITY_THRESHOLD_MINUTES", 5)) # Default to 5 minutes
 # How often the scheduler checks for inactive channels (in minutes)
-SCHEDULER_INTERVAL_MINUTES = float(os.environ.get("SCHEDULER_INTERVAL_MINUTES", 5 / 60)) # 5 seconds
+SCHEDULER_INTERVAL_MINUTES = float(os.environ.get("SCHEDULER_INTERVAL_MINUTES", 1)) # Default to 1 minute
 # How often the scheduler checks for expired questions (in minutes)
-QUESTION_EXPIRY_INTERVAL_MINUTES = float(os.environ.get("QUESTION_EXPIRY_INTERVAL_MINUTES", 5 / 60)) # 5 seconds
+QUESTION_EXPIRY_INTERVAL_MINUTES = float(os.environ.get("QUESTION_EXPIRY_INTERVAL_MINUTES", 1)) # Default to 1 minute
 
 def analyze_inactive_channels():
     """

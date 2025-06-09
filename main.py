@@ -1,14 +1,34 @@
 import logging
 import os
+import sys
 import threading
 from dotenv import load_dotenv
 from flask import Flask
 
-from slack.listener import start_listening
-from tasks.scheduler import start_scheduler
+# Add project root to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 
-# Configure logging
+# --- Load environment variables and configure logging first ---
+# This ensures that all modules have access to env variables and logging is set up.
+load_dotenv()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.info("--- Application Starting Up ---")
+
+# Now import the other modules
+from slack.listener import start_listening
+from tasks.scheduler import (
+    start_scheduler,
+    INACTIVITY_THRESHOLD_MINUTES,
+    SCHEDULER_INTERVAL_MINUTES,
+    QUESTION_EXPIRY_INTERVAL_MINUTES
+)
+
+# --- Log the loaded configuration for debugging ---
+logging.info("Scheduler Configuration Loaded:")
+logging.info(f"  - Inactivity Threshold: {INACTIVITY_THRESHOLD_MINUTES} minutes")
+logging.info(f"  - Scheduler Interval: {SCHEDULER_INTERVAL_MINUTES} minutes")
+logging.info(f"  - Question Expiry Interval: {QUESTION_EXPIRY_INTERVAL_MINUTES} minutes")
 
 # --- Flask App for Render Health Checks ---
 app = Flask(__name__)
@@ -37,8 +57,7 @@ def main():
     """
     Main entrypoint for the Slack Monitoring Agent.
     """
-    load_dotenv()
-    logging.info("Environment variables loaded.")
+    logging.info("Starting background tasks...")
     run_background_tasks()
 
     # The Flask app will be run by Gunicorn in production (see render.yaml)
