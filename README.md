@@ -41,8 +41,8 @@ This project is an AI-powered Slack bot designed to monitor client communication
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repository_url>
-    cd <repository_name>
+    git clone https://github.com/tylervu12/slack-ai.git
+    cd slack-ai
     ```
 
 2.  **Create a virtual environment:**
