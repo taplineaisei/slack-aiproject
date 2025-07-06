@@ -96,7 +96,7 @@ Here is the conversation:
         try:
             logging.info(f"Sending dialogue for {channel_name} to GPT-4o for summarization...")
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": dialogue}
