@@ -86,7 +86,7 @@ Please respond ONLY with a valid JSON object in the format shown in the example.
         try:
             logging.info("Sending dialogue to GPT-4o for analysis...")
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": dialogue}
