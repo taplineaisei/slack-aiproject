@@ -108,7 +108,7 @@ Here is the conversation:
             logging.info(f"Successfully received summary for {channel_name}.")
 
             # 4. Post summary
-            client_name = metadata_loader.get_metadata_by_channel(channel_name).get("client_name", channel_name)
+          client_name = f"#{channel_name}"
             final_post = f"📝 *Daily Summary for {client_name} - {datetime.now().strftime('%B %d, %Y')}*\n\n{summary_text}"
             post_summary("client-summaries", final_post)
             logging.info(f"Posted daily summary for {channel_name} to #client-summaries.")
