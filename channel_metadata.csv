@@ -1,4 +1,4 @@
-channel_name,client_name,client_email_domain,channel_url
-client-alerts,Client Alerts,clientalerts.com,https://slack.com/app_redirect?channel=C094JKKEG6Q
-client-summaries,Client Summaries,clientsummaries.com,https://slack.com/app_redirect?channel=C094JKKLLCC
-testimonials,Testimonials,testimonials.com,https://slack.com/app_redirect?channel=C0943NP275M
+channel_name,channel_url
+client-alerts,https://slack.com/app_redirect?channel=C094JKKEG6Q
+client-summaries,https://slack.com/app_redirect?channel=C094JKKLLCC
+testimonials,https://slack.com/app_redirect?channel=C0943NP275M
