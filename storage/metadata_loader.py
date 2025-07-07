@@ -2,6 +2,10 @@ import csv
 import logging
 from typing import Dict, Optional, Literal
 
+# Add a list of domains you and your team use
+INTERNAL_DOMAINS = ["sey-media.com", "leadacquisition.io"]  # Add as many as you need
+
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -68,33 +72,32 @@ class MetadataLoader:
 
     def get_role(self, user_email: str, channel_name: str) -> Literal["client", "internal", "unknown"]:
         """
-        Determines if a user is a client or internal based on their email domain.
+        Determines if a user is internal or client based on their email domain.
 
-        Args:
-            user_email: The email address of the user.
-            channel_name: The name of the channel the user is in.
-
-        Returns:
-            'client' if the user's email domain matches the client's domain,
-            'internal' if it does not, or 'unknown' if the channel is not found.
+        1. If the email ends in a known INTERNAL_DOMAINS → "internal"
+        2. If the email matches the client_email_domain for the channel → "client"
+        3. Else → "unknown"
         """
-        # Temporary rule for testing: an email with "000" is a client
-        if "000" in user_email:
-            return "client"
-            
+        if not user_email or '@' not in user_email:
+            return "unknown"
+
+        user_domain = user_email.split('@')[-1].lower()
+
+        # ✅ Global check for internal domains
+        if user_domain in INTERNAL_DOMAINS:
+            return "internal"
+
+        # 🔁 Fallback: check if the email matches the client's domain from the CSV
         metadata = self.get_metadata_by_channel(channel_name)
         if not metadata:
             return "unknown"
 
         client_domain = metadata.get("email_domain")
-        if not client_domain:
-            logging.warning("No email domain specified for channel '%s'.", channel_name)
-            return "internal" # Default to internal if no domain is set
-
-        if user_email.endswith(f"@{client_domain}"):
+        if client_domain and user_domain == client_domain.lower():
             return "client"
-        else:
-            return "internal"
+
+        return "unknown"
+
 
 # Singleton instance to be used across the application
 metadata_loader = MetadataLoader()
