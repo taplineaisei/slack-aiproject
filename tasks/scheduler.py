@@ -48,7 +48,7 @@ def analyze_inactive_channels():
             # All messages in this batch are from the same channel, so we can get the name from the first one.
             channel_name = messages_to_process[0].get("channel_name", "unknown_channel")
             channel_metadata = metadata_loader.get_metadata_by_channel(channel_name)
-            client_name = channel_metadata.get("client_name", "An unknown client") if channel_metadata else "An unknown client"
+            client_name = f"#{channel_name}"
             first_message_ts = messages_to_process[0]['timestamp']
             message_link = build_message_link(channel_id, first_message_ts)
 
