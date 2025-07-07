@@ -36,8 +36,7 @@ class QuestionTracker:
             question_ts = q.get("timestamp")
             if not question_ts:
                 continue
-            
-            # Don't track a question that's already being tracked
+
             if question_ts not in self.unanswered_questions:
                 self.unanswered_questions[question_ts] = {
                     "text": q["text"],
@@ -57,15 +56,12 @@ class QuestionTracker:
         channel_id = message.get("channel_id")
 
         if user_role == "internal" and channel_id:
-            # Find all questions being tracked in this channel
             questions_in_channel = [
                 ts for ts, q in self.unanswered_questions.items() if q["channel_id"] == channel_id
             ]
-            
-            # Mark all of them as answered
             for question_ts in questions_in_channel:
                 self.mark_as_answered(question_ts)
-    
+
     def mark_as_answered(self, question_ts: str):
         """
         Removes a question from the tracker.
@@ -79,17 +75,14 @@ class QuestionTracker:
         Checks for questions that have passed their deadline and sends alerts.
         """
         now = datetime.now()
-        # Iterate over a copy of the keys to allow modification during iteration
         for question_ts in list(self.unanswered_questions.keys()):
             question = self.unanswered_questions[question_ts]
             if now > question["deadline"]:
                 logging.warning(f"Question has expired in #{question['channel_name']}: '{question['text']}'")
-                
-                # Format and send the alert
-                channel_metadata = metadata_loader.get_metadata_by_channel(question["channel_name"])
-                client_name = channel_metadata.get("client_name", "An unknown client") if channel_metadata else "An unknown client"
+
                 message_link = build_message_link(question["channel_id"], question_ts)
-                
+                client_name = f"#{question['channel_name']}"  # Updated here since client_name is no longer in CSV
+
                 alert_text = (
                     f"❓ Unanswered Question for *{client_name}* needs attention!\n\n"
                     f"> {question['text']}\n\n"
@@ -97,8 +90,7 @@ class QuestionTracker:
                     f"<{message_link}|Jump to question>"
                 )
                 post_alert("client-alerts", alert_text)
-                
-                # Remove the question so we don't alert again
+
                 self.unanswered_questions.pop(question_ts)
 
 # Singleton instance
@@ -106,26 +98,21 @@ deadline = float(os.environ.get("QUESTION_EXPIRATION_MINUTES", 30))
 question_tracker = QuestionTracker(deadline_minutes=deadline)
 
 if __name__ == '__main__':
-    # Example usage for testing
     print("Running QuestionTracker test...")
     test_channel_id = "C12345"
     test_channel_name = "revops-ai"
     q1 = {"text": "How do I update my billing info?", "timestamp": "1700000001.000100"}
-    
-    # 1. Add a question
+
     question_tracker.add_unanswered_questions([q1], test_channel_id, test_channel_name)
     print(f"Tracked questions: {question_tracker.unanswered_questions}")
     assert "1700000001.000100" in question_tracker.unanswered_questions
 
-    # 2. Simulate an answer
     answer_message = {"thread_ts": "1700000001.000100", "user_role": "internal"}
     question_tracker.handle_new_message(answer_message)
     print(f"Tracked questions after answer: {question_tracker.unanswered_questions}")
     assert "1700000001.000100" not in question_tracker.unanswered_questions
-    
-    # 3. Add a question and let it expire
+
     q2 = {"text": "What is the ETA for the new feature?", "timestamp": "1700000002.000200"}
-    # Temporarily set a very short deadline for testing
     question_tracker.deadline = timedelta(seconds=1)
     question_tracker.add_unanswered_questions([q2], test_channel_id, test_channel_name)
     print(f"Tracked questions: {question_tracker.unanswered_questions}")
@@ -133,10 +120,7 @@ if __name__ == '__main__':
     print("Waiting for question to expire...")
     import time
     time.sleep(2)
-    
-    # This would normally be run by the scheduler. We need a mock slack_api for this test to run.
-    # For now, we will just check that the question is still there.
-    # To fully test check_for_expired_questions, we'd need to mock post_alert.
+    # For testing expiration logic, you'd run:
     # question_tracker.check_for_expired_questions()
-    
+
     print("Test complete.")
