@@ -54,10 +54,12 @@ class TriggerEngine:
 You are a helpful AI assistant monitoring a client communication channel on Slack.
 Your task is to analyze a conversation and identify three things from messages sent by the **Client** only:
 1.  **Client Fire**: Is the **Client** expressing urgent, negative sentiment?
-2.  **Testimonial**: Is the **Client** expressing strong, positive sentiment?
+2.  **Testimonial**: Is the **Client** expressing strong, positive sentiment or reporting meaningful wins, milestones, or client results? This includes praise or mentions of signing a client, landing a deal, closing a retainer, etc.
 3.  **Client Questions**: List any explicit questions the **Client** has asked that have not yet been answered by the team.
 
 **IMPORTANT**: Only analyze messages where the role is "Client". Ignore any fires, testimonials, or questions from the "Team".
+...
+
 
 Here is an example:
 ---
